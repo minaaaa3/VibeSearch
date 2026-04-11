@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/v1/:match*",
+      "destination": "backend/app/main.py"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/frontend/$1"
+    }
+  ],
+  "functions": {
+    "backend/app/main.py": {
+      "runtime": "vercel-python@0.14.0"
+    }
+  }
+}
