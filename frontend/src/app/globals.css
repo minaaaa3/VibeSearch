@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', -apple-system, sans-serif;
+  
+  /* Soft Animations */
+  --animate-in: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+:root {
+  --background: #fdfcfb; /* さらに温かみのあるクリーム白 */
+  --foreground: #475569; /* 少し明るめのスレートグレー */
+  --accent: #f19066;     /* 目に優しい、くすんだアプリコットオレンジ */
+  --soft-bg: #fdf2f0;    /* オレンジ系の非常に淡い背景色 */
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
