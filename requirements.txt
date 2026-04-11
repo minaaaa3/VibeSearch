@@ -8,3 +8,5 @@ pydantic-settings
 supabase
 python-dotenv
 httpx
+pytz
+google-generativeai
