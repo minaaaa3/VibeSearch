@@ -16,6 +16,7 @@ export default function VibeSearchPage() {
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<SearchResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSearch = async (e?: React.FormEvent, directInput?: string) => {
     if (e) e.preventDefault();
@@ -24,11 +25,13 @@ export default function VibeSearchPage() {
     if (!searchInput.trim()) return;
 
     setIsLoading(true);
+    setError(null);
     try {
       const data = await searchSpots(searchInput);
       setResults(data);
     } catch (error) {
       console.error("Search failed:", error);
+      setError("検索中にエラーが発生しました。しばらく時間を置いてから再度お試しください。");
     } finally {
       setIsLoading(false);
     }
@@ -139,6 +142,11 @@ export default function VibeSearchPage() {
 
           {/* Vibe Chips - Muted Apricot */}
           <div className="space-y-6">
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-500 text-sm font-bold text-center animate-in">
+                {error}
+              </div>
+            )}
             <div className="flex items-center justify-center gap-3 text-slate-200">
               <div className="h-[1px] w-12 bg-slate-100" />
               <span className="text-[10px] font-black uppercase tracking-[0.3em]">Personalize Vibes</span>

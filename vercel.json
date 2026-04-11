@@ -13,7 +13,7 @@
   "rewrites": [
     {
       "source": "/api/v1/:match*",
-      "destination": "api/index.py"
+      "destination": "frontend/api/index.py"
     }
   ]
 }
