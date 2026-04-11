@@ -187,11 +187,11 @@ export default function VibeSearchPage() {
                 <h2 className="text-xl font-bold text-slate-800 tracking-tight">あなたの「こだわり」を整理しました</h2>
                 <div className="flex flex-wrap justify-center gap-3 mt-2">
                   <span className="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-500 rounded-xl text-xs font-bold border border-slate-100">
-                    📍 {results.intent.location || "どこでも"}
+                    📍 {typeof results.intent.location === 'string' ? results.intent.location : "どこでも"}
                   </span>
-                  {results.intent.vibe.map((v, i) => (
+                  {Array.isArray(results.intent.vibe) && results.intent.vibe.map((v, i) => (
                     <span key={i} className="inline-flex items-center px-4 py-2 bg-[#fdf2f0] text-[#f19066] rounded-xl text-xs font-bold border border-[#fbd3c1]/50">
-                      #{v}
+                      #{typeof v === 'string' ? v : JSON.stringify(v)}
                     </span>
                   ))}
                 </div>
