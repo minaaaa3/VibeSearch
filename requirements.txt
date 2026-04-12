@@ -3,8 +3,10 @@ uvicorn
 langgraph
 langchain
 langchain-google-genai
+google-generativeai
 pydantic
 pydantic-settings
 supabase
 python-dotenv
 httpx
+pytz
