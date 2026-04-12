@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.services.search_agent import search_agent
+from ..services.search_agent import search_agent
 from pydantic import BaseModel
 from typing import List, Dict, Any
 

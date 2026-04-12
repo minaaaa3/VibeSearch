@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
-from app.services.agent_state import AgentState
+from .agent_state import AgentState
 
 # .env ファイルを読み込む
 load_dotenv()

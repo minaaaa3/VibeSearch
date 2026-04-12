@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.search import router as search_router
+from .api.search import router as search_router
 
 app = FastAPI(title="VibeSearch API")
 
