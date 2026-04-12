@@ -5,16 +5,11 @@ from pydantic import BaseModel
 from typing import List, Dict, Any
 
 # プロジェクトルートと backend フォルダをパスに追加
+# これによりインポートを確実に通す
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
-if os.path.join(root_dir, 'backend') not in sys.path:
-    sys.path.insert(0, os.path.join(root_dir, 'backend'))
 
-# backend から直接 search_agent をインポート
-from backend.app.services.search_agent import search_agent
-
-# Vercel は 'app' という変数名を探します
 app = FastAPI()
 
 class SearchRequest(BaseModel):
@@ -23,7 +18,9 @@ class SearchRequest(BaseModel):
 @app.post("/api/search")
 async def search_spots(request: SearchRequest):
     try:
-        # 初期状態の設定
+        # 関数の外でインポートすると起動時に 500 が出やすいので、内部でインポート
+        from backend.app.services.search_agent import search_agent
+        
         initial_state = {
             "user_input": request.user_input,
             "messages": [],
@@ -34,12 +31,12 @@ async def search_spots(request: SearchRequest):
         # エージェントの実行
         result = await search_agent.ainvoke(initial_state)
         
-        # メッセージを安全に文字列化（React Error #31 回避）
+        # メッセージの正規化（React Error #31 対策）
         messages = []
         for msg in result.get("messages", []):
             if isinstance(msg, str):
                 messages.append(msg)
-            elif hasattr(msg, "content"): # BaseMessage系
+            elif hasattr(msg, "content"):
                 messages.append(str(msg.content))
             else:
                 messages.append(str(msg))
@@ -50,12 +47,13 @@ async def search_spots(request: SearchRequest):
             "log": messages
         }
     except Exception as e:
-        # 具体的なエラーメッセージを返すことで、フロントエンドでデバッグしやすくする
+        # ここで 500 を返さず、JSON で具体的なエラー内容を返す（フロントエンドのクラッシュ回避）
         return {
             "error": str(e),
-            "trace": "Error during search execution"
+            "type": type(e).__name__,
+            "msg": "Python execution failed"
         }
 
 @app.get("/api/search")
-async def health_check():
-    return {"status": "search endpoint is alive"}
+async def health():
+    return {"status": "ok", "api": "search"}
