@@ -13,12 +13,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# APIルーターの登録
-app.include_router(search_router, prefix="/api/v1", tags=["search"])
-
-@app.get("/")
-async def root():
-    return {"message": "Welcome to VibeSearch API"}
+# APIルーターの登録（prefixを空にする）
+app.include_router(search_router, tags=["search"])
 
 @app.get("/health")
 async def health_check():

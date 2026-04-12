@@ -1,11 +1,11 @@
 import { SearchResponse } from "@/types";
 
-// Vercel のデプロイ構成に合わせて相対パスを基本にする
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+// Vercel の API 関数（api/index.py）は自動的に /api/v1/search にマッピングされるようにします
+// (vercel.json を消したので、Vercel の標準マッピングを使います)
+const API_BASE_URL = "/api";
 
 export async function searchSpots(userInput: string): Promise<SearchResponse> {
-  // ブラウザでの実行時に /api/v1/search となるように、末尾のスラッシュに気をつける
-  const url = `${API_BASE_URL.replace(/\/$/, "")}/search`;
+  const url = `${API_BASE_URL}/search`; // api/index.py 内の FastAPI ルーターが /search を持っている前提
   
   const response = await fetch(url, {
     method: "POST",
@@ -17,7 +17,7 @@ export async function searchSpots(userInput: string): Promise<SearchResponse> {
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error(`API response was not ok: ${response.status} ${errorText}`);
+    console.error(`API response was not ok: ${response.status} ${errorText.substring(0, 200)}`);
     throw new Error(`Failed to fetch search results: ${response.status}`);
   }
 
