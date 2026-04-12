@@ -4,8 +4,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Any
 
-# プロジェクトルートと backend フォルダをパスに追加
-# これによりインポートを確実に通す
+# パス設定（これを一番最初に行う）
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
@@ -15,10 +14,12 @@ app = FastAPI()
 class SearchRequest(BaseModel):
     user_input: str
 
+# Vercel は /api/search へのリクエストを api/search.py に転送するため
+# このファイル内ではパスをシンプルに保ち、どんなパスで来ても反応できるようにする
 @app.post("/api/search")
+@app.post("/")
 async def search_spots(request: SearchRequest):
     try:
-        # 関数の外でインポートすると起動時に 500 が出やすいので、内部でインポート
         from backend.app.services.search_agent import search_agent
         
         initial_state = {
@@ -28,10 +29,8 @@ async def search_spots(request: SearchRequest):
             "final_recommendations": []
         }
         
-        # エージェントの実行
         result = await search_agent.ainvoke(initial_state)
         
-        # メッセージの正規化（React Error #31 対策）
         messages = []
         for msg in result.get("messages", []):
             if isinstance(msg, str):
@@ -47,13 +46,9 @@ async def search_spots(request: SearchRequest):
             "log": messages
         }
     except Exception as e:
-        # ここで 500 を返さず、JSON で具体的なエラー内容を返す（フロントエンドのクラッシュ回避）
-        return {
-            "error": str(e),
-            "type": type(e).__name__,
-            "msg": "Python execution failed"
-        }
+        return {"error": str(e), "msg": "Python execution failed"}
 
 @app.get("/api/search")
+@app.get("/")
 async def health():
-    return {"status": "ok", "api": "search"}
+    return {"status": "ok", "message": "Search API is ready"}
