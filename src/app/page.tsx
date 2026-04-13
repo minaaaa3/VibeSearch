@@ -22,16 +22,22 @@ export default function VibeSearchPage() {
     if (e) e.preventDefault();
     
     const searchInput = directInput || [input, ...selectedKeywords].filter(Boolean).join(" ");
-    if (!searchInput.trim()) return;
+    console.log("Search initiated with:", searchInput);
+    
+    if (!searchInput.trim()) {
+      setError("検索ワードを入力するか、キーワードを選択してください。");
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
     try {
       const data = await searchSpots(searchInput);
+      console.log("Search results received:", data);
       setResults(data);
     } catch (error) {
       console.error("Search failed:", error);
-      setError("検索中にエラーが発生しました。しばらく時間を置いてから再度お試しください。");
+      setError("検索中にエラーが発生しました。バックエンドが起動しているか確認してください。");
     } finally {
       setIsLoading(false);
     }
@@ -184,7 +190,9 @@ export default function VibeSearchPage() {
                 <div className="p-3 bg-[#fdf2f0] rounded-2xl text-[#f19066]">
                   <Sparkles className="w-6 h-6" />
                 </div>
-                <h2 className="text-xl font-bold text-slate-800 tracking-tight">あなたの「こだわり」を整理しました</h2>
+                <h2 className="text-xl font-bold text-slate-800 tracking-tight">
+                  {results.recommendations.length}件のスポットが見つかりました
+                </h2>
                 <div className="flex flex-wrap justify-center gap-3 mt-2">
                   <span className="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-500 rounded-xl text-xs font-bold border border-slate-100">
                     📍 {typeof results?.intent?.location === 'string' ? results.intent.location : "どこでも"}
@@ -218,16 +226,23 @@ export default function VibeSearchPage() {
                     )}
                   </div>
 
-                  {spot.image_url && (
-                    <div className="relative w-full md:w-80 h-64 md:h-auto overflow-hidden shrink-0">
+                  <div className="relative w-full md:w-80 h-64 md:h-auto overflow-hidden shrink-0 bg-slate-50">
+                    {spot.image_url ? (
                       <img 
                         src={spot.image_url} 
                         alt={spot.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800\u0026q=80";
+                        }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent" />
-                    </div>
-                  )}
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-200">
+                        <MapPin className="w-12 h-12" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent" />
+                  </div>
 
                   <div className="p-10 md:p-12 flex flex-col flex-1">
                     <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8">
@@ -241,7 +256,7 @@ export default function VibeSearchPage() {
                         </div>
                       </div>
                       <a 
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + " " + spot.address)}`}
+                        href={`https://www.google.com/maps/search/?api=1\u0026query=${encodeURIComponent(spot.name + " " + spot.address)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-3 bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-2xl transition-all border border-slate-100"
@@ -261,7 +276,7 @@ export default function VibeSearchPage() {
                     <div className="mt-auto flex items-center justify-between pt-8 border-t border-slate-50">
                       <div className="flex items-center gap-4">
                         <div className="px-4 py-1.5 bg-slate-50 text-slate-400 rounded-lg text-[10px] font-black uppercase tracking-[0.2em]">
-                          {spot.metadata.price_range || "Budget info n/a"}
+                          {spot.metadata?.price_range || "予算情報なし"}
                         </div>
                         {spot.crowd && (
                           <span className={cn(
