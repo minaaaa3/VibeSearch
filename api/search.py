@@ -1,18 +1,19 @@
 import os
 import sys
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Any
 
-# Vercel の関数実行環境 (/var/task) で backend をインポート可能にする
-root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if root_path not in sys.path:
-    sys.path.insert(0, root_path)
+# Vercel の実行環境 (/var/task) でルートディレクトリを特定
+# api/search.py から見て親ディレクトリがプロジェクトルート
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if base_dir not in sys.path:
+    sys.path.insert(0, base_dir)
 
-# backend ディレクトリ自体も念のため追加
-backend_path = os.path.join(root_path, 'backend')
-if backend_path not in sys.path:
-    sys.path.insert(0, backend_path)
+# backend フォルダもパッケージとして認識させる
+backend_dir = os.path.join(base_dir, 'backend')
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
 
 app = FastAPI()
 
@@ -20,9 +21,10 @@ class SearchRequest(BaseModel):
     user_input: str
 
 @app.post("/api/search")
+@app.post("/")
 async def search_spots(request: SearchRequest):
     try:
-        # リクエストを受けてからインポートすることで、起動時のインポートエラーを防ぐ
+        # 起動時ではなく、リクエスト時にインポートすることで ModuleNotFoundError で 500 になるのを防ぐ
         from backend.app.services.search_agent import search_agent
         
         initial_state = {
@@ -49,9 +51,14 @@ async def search_spots(request: SearchRequest):
             "log": messages
         }
     except Exception as e:
-        # エラー発生時に 500 ではなく JSON でエラーを返し、フロントエンドがクラッシュするのを防ぐ
-        return {"error": str(e), "status": "failed"}
+        # ここで 500 エラーを発生させず、エラー詳細を JSON で返す（フロントエンドのクラッシュ防止）
+        return {
+            "error": str(e),
+            "trace": "Check if backend directory exists and GOOGLE_API_KEY is set",
+            "sys_path": sys.path
+        }
 
 @app.get("/api/search")
+@app.get("/")
 async def health():
-    return {"status": "ok", "api": "search endpoint"}
+    return {"status": "ok", "msg": "VibeSearch API is active"}
