@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VibeSearch
 
-## Getting Started
+ユーザーの抽象的な「こだわり（感性）」を言語化し、最適なスポットを提案する AI エージェント型検索エンジン。
 
-First, run the development server:
+## プロジェクト概要
+
+VibeSearch は、従来のキーワード検索では表現しきれない「なんとなくこんな雰囲気の場所に行きたい」というユーザーの感性を、AI（Gemini 1.5 Flash）が対話を通じて言語化し、最適なスポットを提案するシステムです。
+
+## 主な機能
+
+- **AI 対話による意図解析**: LangGraph を用いたエージェントが、ユーザーの曖昧な要望を深掘りし、真のニーズを解析します。
+- **感性検索 (Vibe Search)**: 「静かで集中できる」「モダンでインスピレーションが湧く」といった抽象的なニュアンスをベクトル検索でマッチング。
+- **モダンな UI/UX**: Next.js 15 (App Router) を活用した、レスポンシブで直感的なチャットインターフェース。
+
+## 技術スタック
+
+### Frontend
+
+- **Framework**: Next.js (App Router)
+- **Styling**: Tailwind CSS
+- **Icons**: Lucide React
+
+### Backend
+
+- **Framework**: FastAPI
+- **Agent Framework**: LangGraph
+- **LLM**: Gemini 1.5 Flash (langchain-google-genai)
+
+### Infrastructure & Database
+
+- **Database**: Supabase (pgvector, PostGIS)
+- **Deployment**: Vercel
+
+## セットアップ
+
+### 環境変数の設定
+
+`.env.local`（フロントエンド）および `backend/.env`（バックエンド）を作成し、必要な API キーを設定してください。
+
+### フロントエンドの起動
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### バックエンドの起動
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cd backend
+pip install -r requirements.txt
+python -m app.main
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## デプロイについて
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+このプロジェクトは **Vercel** にデプロイされています。
+フロントエンドと API（Next.js Rewrites または Vercel Functions 経由）がシームレスに連携し、スケーラブルな環境で動作します。
